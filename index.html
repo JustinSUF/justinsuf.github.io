@@ -1,26 +1,45 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	<body style="background-color:rgb(29, 29, 29);">
-	<title>JustinSUF</title>
-	<link rel="stylesheet" href="main.css" />
-</head>
-	<div id="wrapper">
-		<div id="main">
-			<header id="header">
-				<h1>JustinSUF</h1>
-				<p>I make music and create websites, check out my music below.</p>
-				<a href="https://open.spotify.com/artist/0zHdX0wSmTajwa81Bo0aaK?si=HAKpNmOlRqqHYGxTbaI1fA">Spotify</a>
-				<a href="https://music.apple.com/us/artist/justinsuf/1643887057">Apple Music</a>
-				<a href="https://www.instagram.com/justinsuf.music/">Instagram</a>
-				<p>Links to selfhosted stuff (you might not have access)</p>
-				<a href="http://209.25.140.211:20208">Jellyfin</a>
-			</header>
-		</div>
-	</div>
-</body>
-
+<html>
+  <head>
+    <style>
+      body {
+        background-color: black;
+      }
+      .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      img {
+        width: 50%;
+        opacity: 0;
+        animation: fadein 2s;
+        transition: opacity 2s;
+        animation-fill-mode: forwards;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      a {
+        color: white;
+        text-decoration: none;
+        opacity: 0;
+        animation: fadein 2s;
+        transition: opacity 2s;
+        animation-fill-mode: forwards;
+      }
+      a:hover {
+        color: lightgray;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <img src="logo.png" alt="image">
+    </div>
+  </body>
 </html>
