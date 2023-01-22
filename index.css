@@ -1,0 +1,53 @@
+@keyframes fadein {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@font-face {
+    font-family: SweetMacarons;
+    src: url(SweetMacarons-x3935.ttf);
+}
+
+body {
+    background: linear-gradient(60deg, #3c3b5f, #f15642, #e19141);
+    background-size: 150% 150%;
+    animation: gradient 10s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+h1 {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: aliceblue;
+    font-family: SweetMacarons;
+    font-size: 90px;
+    font-weight: lighter;
+    opacity: 0;
+    animation: fadein 1s ease-in forwards;
+}
+  
+h2 {
+    position: absolute;
+    top: 57%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: aliceblue;
+    font-family: SweetMacarons;
+    font-size: 25px;
+    font-weight: lighter;
+    opacity: 0;
+    animation: fadein 1s ease-in forwards;
+}

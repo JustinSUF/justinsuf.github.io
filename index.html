@@ -1,68 +1,18 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>JustinSUF</title>
-  <style>
-    /* Add a black background */
-    body {
-      background-color: black;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    /* Add CSS styles for the image */
-    #rotating-image {
-      animation: fadein 1s ease-in forwards, spin 4s linear infinite;
-      opacity: 0;
-    }
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <title>JustinSUF</title>
+        <link rel="stylesheet" href="index.css">
 
-    /* Add the animation keyframes for the fading effect */
-    @keyframes fadein {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
+    </head>
 
-    /* Add the animation keyframes for the spinning effect */
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    /* Add the animation keyframes for the fading effect */
-    @keyframes fadeout {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
+    <body>
+        <h1>JustinSUF</h1>
+        <h2>Mobile aint workin</h2>
+    </body>
 
-    body::-webkit-scrollbar {
-    width: 0.2em;
-    background-color: #F5F5F5;
-    }
-
-    body {
-    overflow: -moz-scrollbars-none;  /* Firefox */
-    -ms-overflow-style: none;  /* Internet Explorer and Edge */
-}
-
- 
-body::-webkit-scrollbar-thumb {
-  background-color: #000000;
-}
-
-  </style>
-</head>
-<body>
-  <img id="rotating-image" src="./images/logo.png" onclick="fadeaway()" />
-  <script>
-    function fadeaway() {
-      /* Fade out the image */
-      document.getElementById("rotating-image").style.animation = "fadeout 1s ease-out forwards, spin 4s linear infinite";
-      /* Redirect to another page after 1 second */
-      setTimeout(function(){
-        window.location.href = "./soon.html";
-      }, 1000);
-    }
-  </script>
-</body>
 </html>
