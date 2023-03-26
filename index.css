@@ -36,41 +36,11 @@ body {
       90% { transform: translate(10%,5%) }
       100% { transform: translate(5%,0) }
 }
-  
-  .live-type {
-    color: white;
-    width: 25ch;
-    animation: typing 2s steps(25);
-    white-space: nowrap;
-    overflow: hidden;
-    font-family: monospace;
-    font-size: 2em;
-}
 
-.live-type2 {
+.live-type {
     color: white;
-    width: 28ch;
-    animation: typing 2s steps(28);
-    white-space: nowrap;
-    overflow: hidden;
-    font-family: monospace;
-    font-size: 2em;
-}
-
-.live-type3 {
-    color: white;
-    width: 18ch;
-    animation: typing 2s steps(18);
-    white-space: nowrap;
-    overflow: hidden;
-    font-family: monospace;
-    font-size: 2em;
-}
-
-.live-type4 {
-    color: white;
-    width: 43ch;
-    animation: typing 2s steps(43), blink .530s step-end infinite alternate;
+    width: 21ch;
+    animation: typing 2s steps(21), blink .530s step-end infinite alternate;
     white-space: nowrap;
     overflow: hidden;
     border-right: 3px solid;
