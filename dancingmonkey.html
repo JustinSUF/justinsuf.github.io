@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🐒 Dancing Monkey</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a0a2e; overflow: hidden; font-family: sans-serif; }
+  canvas { display: block; }
+  #label {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.5); font-size: 0.85rem; letter-spacing: 0.15em;
+    text-transform: uppercase; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="label">🐒 get down monkey</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0, 2, 6);
+camera.lookAt(0, 1.5, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.setPixelRatio(devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+// Lights
+const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambient);
+const spot = new THREE.SpotLight(0xff88ff, 2, 20, Math.PI/5, 0.3);
+spot.position.set(3, 6, 4);
+spot.castShadow = true;
+scene.add(spot);
+const spot2 = new THREE.SpotLight(0x88ffff, 1.5, 20, Math.PI/5, 0.3);
+spot2.position.set(-3, 4, 2);
+scene.add(spot2);
+const disco = new THREE.PointLight(0xff2200, 3, 10);
+scene.add(disco);
+
+// Floor
+const floorGeo = new THREE.CircleGeometry(4, 64);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x220033, metalness: 0.6, roughness: 0.3 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Helper: capsule-like limb from cylinder + spheres
+function limb(rx, ry, rz, height, color) {
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.1 });
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(rx, rz, height, 12), mat);
+  g.add(cyl);
+  const top = new THREE.Mesh(new THREE.SphereGeometry(rx, 12, 12), mat);
+  top.position.y = height/2; g.add(top);
+  const bot = new THREE.Mesh(new THREE.SphereGeometry(rz, 12, 12), mat);
+  bot.position.y = -height/2; g.add(bot);
+  return g;
+}
+
+const FUR = 0x8B4513;
+const FACE = 0xD2691E;
+const DARK = 0x5C2D0A;
+
+// ── BUILD MONKEY ──
+const monkey = new THREE.Group();
+scene.add(monkey);
+
+// Body
+const bodyGeo = new THREE.SphereGeometry(0.55, 16, 16);
+bodyGeo.scale(1, 1.2, 0.9);
+const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: FUR, roughness: 0.7 }));
+body.position.y = 1.1;
+body.castShadow = true;
+monkey.add(body);
+
+// Belly
+const bellyGeo = new THREE.SphereGeometry(0.32, 12, 12);
+bellyGeo.scale(1, 1.1, 0.7);
+const belly = new THREE.Mesh(bellyGeo, new THREE.MeshStandardMaterial({ color: FACE, roughness: 0.8 }));
+belly.position.set(0, 1.08, 0.35);
+monkey.add(belly);
+
+// Head
+const head = new THREE.Group();
+head.position.set(0, 1.85, 0);
+monkey.add(head);
+
+const headMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.42, 16, 16),
+  new THREE.MeshStandardMaterial({ color: FUR, roughness: 0.7 })
+);
+head.add(headMesh);
+
+// Face plate
+const faceGeo = new THREE.SphereGeometry(0.28, 12, 12);
+faceGeo.scale(1, 0.85, 0.6);
+const faceMesh = new THREE.Mesh(faceGeo, new THREE.MeshStandardMaterial({ color: FACE, roughness: 0.8 }));
+faceMesh.position.set(0, -0.06, 0.3);
+head.add(faceMesh);
+
+// Eyes
+[-0.14, 0.14].forEach(x => {
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10),
+    new THREE.MeshStandardMaterial({ color: 0x111111 }));
+  eye.position.set(x, 0.1, 0.38);
+  head.add(eye);
+  const shine = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff }));
+  shine.position.set(x + 0.025, 0.12, 0.44);
+  head.add(shine);
+});
+
+// Nose
+const nose = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10),
+  new THREE.MeshStandardMaterial({ color: DARK, roughness: 0.9 }));
+nose.position.set(0, -0.03, 0.43);
+nose.scale.set(1.2, 0.7, 0.8);
+head.add(nose);
+
+// Mouth (smile arc from torus)
+const mouth = new THREE.Mesh(
+  new THREE.TorusGeometry(0.1, 0.018, 8, 16, Math.PI),
+  new THREE.MeshStandardMaterial({ color: DARK })
+);
+mouth.position.set(0, -0.16, 0.42);
+mouth.rotation.z = Math.PI;
+head.add(mouth);
+
+// Ears
+[-1, 1].forEach(side => {
+  const ear = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10),
+    new THREE.MeshStandardMaterial({ color: FUR, roughness: 0.7 }));
+  ear.position.set(side * 0.42, 0.05, 0);
+  ear.scale.set(0.6, 1, 0.5);
+  head.add(ear);
+  const innerEar = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10),
+    new THREE.MeshStandardMaterial({ color: FACE, roughness: 0.9 }));
+  innerEar.position.set(side * 0.46, 0.05, 0.04);
+  innerEar.scale.set(0.5, 0.8, 0.3);
+  head.add(innerEar);
+});
+
+// Hair tuft
+for (let i = 0; i < 5; i++) {
+  const tuft = new THREE.Mesh(
+    new THREE.ConeGeometry(0.05, 0.18, 6),
+    new THREE.MeshStandardMaterial({ color: DARK })
+  );
+  tuft.position.set((i - 2) * 0.09, 0.42, 0.05);
+  tuft.rotation.z = (i - 2) * 0.15;
+  head.add(tuft);
+}
+
+// Arms (pivot at shoulder)
+const leftArm = new THREE.Group();
+leftArm.position.set(-0.55, 1.6, 0);
+monkey.add(leftArm);
+const lUpperArm = limb(0.1, 0.09, 0.09, 0.45, FUR);
+lUpperArm.position.y = -0.22;
+leftArm.add(lUpperArm);
+const lForeArm = new THREE.Group();
+lForeArm.position.y = -0.45;
+leftArm.add(lForeArm);
+const lFA = limb(0.09, 0.08, 0.08, 0.4, FUR);
+lFA.position.y = -0.2;
+lForeArm.add(lFA);
+// Hand
+const lHand = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 10),
+  new THREE.MeshStandardMaterial({ color: FACE }));
+lHand.position.set(0, -0.42, 0);
+lForeArm.add(lHand);
+
+const rightArm = new THREE.Group();
+rightArm.position.set(0.55, 1.6, 0);
+monkey.add(rightArm);
+const rUpperArm = limb(0.1, 0.09, 0.09, 0.45, FUR);
+rUpperArm.position.y = -0.22;
+rightArm.add(rUpperArm);
+const rForeArm = new THREE.Group();
+rForeArm.position.y = -0.45;
+rightArm.add(rForeArm);
+const rFA = limb(0.09, 0.08, 0.08, 0.4, FUR);
+rFA.position.y = -0.2;
+rForeArm.add(rFA);
+const rHand = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 10),
+  new THREE.MeshStandardMaterial({ color: FACE }));
+rHand.position.set(0, -0.42, 0);
+rForeArm.add(rHand);
+
+// Legs
+const leftLeg = new THREE.Group();
+leftLeg.position.set(-0.28, 0.7, 0);
+monkey.add(leftLeg);
+const lThigh = limb(0.13, 0.11, 0.11, 0.45, FUR);
+lThigh.position.y = -0.22;
+leftLeg.add(lThigh);
+const lShin = new THREE.Group();
+lShin.position.y = -0.45;
+leftLeg.add(lShin);
+const lS = limb(0.11, 0.09, 0.09, 0.4, FUR);
+lS.position.y = -0.2;
+lShin.add(lS);
+const lFoot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10),
+  new THREE.MeshStandardMaterial({ color: DARK }));
+lFoot.scale.set(1.3, 0.7, 1.8);
+lFoot.position.set(0, -0.42, 0.08);
+lShin.add(lFoot);
+
+const rightLeg = new THREE.Group();
+rightLeg.position.set(0.28, 0.7, 0);
+monkey.add(rightLeg);
+const rThigh = limb(0.13, 0.11, 0.11, 0.45, FUR);
+rThigh.position.y = -0.22;
+rightLeg.add(rThigh);
+const rShin = new THREE.Group();
+rShin.position.y = -0.45;
+rightLeg.add(rShin);
+const rS = limb(0.11, 0.09, 0.09, 0.4, FUR);
+rS.position.y = -0.2;
+rShin.add(rS);
+const rFoot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10),
+  new THREE.MeshStandardMaterial({ color: DARK }));
+rFoot.scale.set(1.3, 0.7, 1.8);
+rFoot.position.set(0, -0.42, 0.08);
+rShin.add(rFoot);
+
+// Tail
+const tailCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 1.0, -0.5),
+  new THREE.Vector3(-0.4, 0.8, -0.8),
+  new THREE.Vector3(-0.7, 1.2, -0.6),
+  new THREE.Vector3(-0.6, 1.7, -0.3),
+  new THREE.Vector3(-0.3, 1.9, -0.1),
+]);
+const tailGeo = new THREE.TubeGeometry(tailCurve, 20, 0.055, 8, false);
+const tail = new THREE.Mesh(tailGeo, new THREE.MeshStandardMaterial({ color: FUR, roughness: 0.8 }));
+monkey.add(tail);
+
+// Disco ball
+const disco_ball = new THREE.Group();
+disco_ball.position.set(0, 5, 0);
+scene.add(disco_ball);
+const dbGeo = new THREE.SphereGeometry(0.5, 16, 16);
+const dbMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.1 });
+disco_ball.add(new THREE.Mesh(dbGeo, dbMat));
+// Tile lines
+for (let i = 0; i < 12; i++) {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.5, 0.01, 4, 32),
+    new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 1 })
+  );
+  ring.rotation.x = (i / 12) * Math.PI;
+  disco_ball.add(ring);
+}
+
+// Particles
+const partGeo = new THREE.BufferGeometry();
+const partCount = 300;
+const positions = new Float32Array(partCount * 3);
+const colors = new Float32Array(partCount * 3);
+for (let i = 0; i < partCount; i++) {
+  positions[i*3]   = (Math.random()-0.5) * 12;
+  positions[i*3+1] = Math.random() * 8;
+  positions[i*3+2] = (Math.random()-0.5) * 12;
+  const c = new THREE.Color().setHSL(Math.random(), 1, 0.6);
+  colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
+}
+partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+partGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+const parts = new THREE.Points(partGeo, new THREE.PointsMaterial({ size: 0.06, vertexColors: true }));
+scene.add(parts);
+
+// Background stars
+const bgGeo = new THREE.BufferGeometry();
+const bgPos = new Float32Array(600 * 3);
+for (let i = 0; i < 600; i++) {
+  bgPos[i*3]   = (Math.random()-0.5) * 40;
+  bgPos[i*3+1] = Math.random() * 20;
+  bgPos[i*3+2] = (Math.random()-0.5) * 40 - 5;
+}
+bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPos, 3));
+scene.add(new THREE.Points(bgGeo, new THREE.PointsMaterial({ size: 0.04, color: 0xffffff, opacity: 0.5, transparent: true })));
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.04;
+
+  // Body bounce
+  monkey.position.y = Math.abs(Math.sin(t * 2)) * 0.18;
+  monkey.position.x = Math.sin(t * 1.3) * 0.15;
+
+  // Body wiggle
+  monkey.rotation.y = Math.sin(t * 1.5) * 0.35;
+  body.rotation.z = Math.sin(t * 2) * 0.12;
+
+  // Head bobbing & side-to-side
+  head.rotation.z = Math.sin(t * 2.5) * 0.25;
+  head.rotation.y = Math.sin(t * 1.8) * 0.3;
+  head.position.y = 1.85 + Math.sin(t * 3) * 0.04;
+
+  // Arms dancing
+  leftArm.rotation.z  = -0.3 + Math.sin(t * 2) * 0.9;
+  leftArm.rotation.x  = Math.sin(t * 1.7 + 1) * 0.5;
+  lForeArm.rotation.z = Math.sin(t * 2.5) * 0.8;
+
+  rightArm.rotation.z  = 0.3 - Math.sin(t * 2) * 0.9;
+  rightArm.rotation.x  = Math.sin(t * 1.7) * 0.5;
+  rForeArm.rotation.z  = -Math.sin(t * 2.5) * 0.8;
+
+  // Legs kicking
+  leftLeg.rotation.x  = Math.sin(t * 2 + Math.PI) * 0.55;
+  lShin.rotation.x     = Math.max(0, Math.sin(t * 2 + 1) * 0.7);
+
+  rightLeg.rotation.x  = Math.sin(t * 2) * 0.55;
+  rShin.rotation.x     = Math.max(0, Math.sin(t * 2 + 1 + Math.PI) * 0.7);
+
+  // Disco ball spin + color
+  disco_ball.rotation.y += 0.012;
+  const hue = (t * 0.1) % 1;
+  disco.color.setHSL(hue, 1, 0.5);
+  disco.position.set(Math.sin(t*0.8)*3, 1.5, Math.cos(t*0.8)*2);
+
+  spot.color.setHSL((hue + 0.33) % 1, 1, 0.5);
+  spot2.color.setHSL((hue + 0.66) % 1, 1, 0.5);
+
+  // Rotate particles slowly
+  parts.rotation.y += 0.003;
+
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
