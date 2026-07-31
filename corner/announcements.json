@@ -1,0 +1,11 @@
+{
+  "announcements": [
+    {
+      "id": "2026-08-31-reflexis-new-app",
+      "header": "Reflexis's new official app",
+      "body": "Walgreens has announced and released a new scheduling app called \"Workcloud Shift\", an official replacement to ESS41. and to be honest it's a better experience than ESS41 which was my plan with this app. so where does this leave corner? right now I am not too sure of the future. I had a bright idea with it but this new app is quite the improvement (but still requires you to login every single time but technically corner does as well.) if i had to be honest, don't have the highest hopes for the future of corner because as i work on this project, i learn more about the risks of walgreens taking me down and such. thanks for all the support, love you all! -justin.",
+      "date": "July 31st, 2026",
+      "urgent": true 
+    }
+  ]
+}
